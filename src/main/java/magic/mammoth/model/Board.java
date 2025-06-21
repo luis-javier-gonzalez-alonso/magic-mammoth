@@ -1,13 +1,13 @@
 package magic.mammoth.model;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Board {
 
     private final Cell[][] cells;
 
-    public Board(Character lastRow, Character lastColumn, String template, Map<Character, List<CellLimit>> legend) {
+    public Board(Character lastRow, Character lastColumn, String template, Map<Character, Set<CellLimit>> legend) {
         int rows = lastRow - 'A' + 1;
         int columns = lastColumn - 'A' + 1;
         this.cells = new Cell[rows][columns];
@@ -16,11 +16,19 @@ public class Board {
             this.cells[row] = new Cell[columns];
 
             for (int column = 0; column < columns; column++) {
-                char key = template.charAt((row * columns) + column);
-                System.out.println(key);
-                this.cells[row][column] = new Cell(legend.get(key));
+                this.cells[row][column] = new Cell(legend
+                        .getOrDefault(template.charAt((row * columns) + column), Set.of()));
             }
         }
+    }
+
+    public boolean canMove(Coordinate origin, Direction direction) {
+        Cell cellOrigin = cells[origin.rowValue()][origin.columnValue()];
+        int rowDestination = (origin.rowValue() + direction.getRowChange() + cells.length) % cells.length;
+        int columnDestination = (origin.columnValue() + direction.getColumnChange() + cells[0].length) % cells[0].length;
+        Cell cellDestination = cells[rowDestination][columnDestination];
+
+        return cellOrigin.to(direction) && cellDestination.from(direction);
     }
 
     public void print() {
@@ -31,16 +39,4 @@ public class Board {
             System.out.println();
         }
     }
-
-//    public Cell get(Coordinate coordinate) {
-//        return cells[coordinate.rowValue()][coordinate.columnValue()];
-//    }
-
-//    public Coordinate resolve(Coordinate origin, Movement movement) {
-//        Cell originCell = get(origin);
-//        CellContent content = originCell.getContent();
-//        if (content.canMove()) {
-//            originCell.setContent(null);
-//        }
-//    }
 }
