@@ -1,8 +1,8 @@
 package magic.mammoth.model.meeples;
 
+import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.board.Board;
 import magic.mammoth.model.board.Cell;
-import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.directions.Direction;
 import magic.mammoth.model.directions.Orthogonals;
 import magic.mammoth.model.movements.Movement;

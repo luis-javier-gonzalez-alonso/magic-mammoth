@@ -1,8 +1,8 @@
 package magic.mammoth.model.meeples;
 
+import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.board.Board;
 import magic.mammoth.model.board.CellLimit;
-import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.movements.Movement;
 import magic.mammoth.model.movements.SuperSpeed;
 

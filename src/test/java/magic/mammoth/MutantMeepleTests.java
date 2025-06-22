@@ -1,8 +1,15 @@
 package magic.mammoth;
 
-import magic.mammoth.model.board.Board;
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.meeples.*;
+import magic.mammoth.model.board.Board;
+import magic.mammoth.model.meeples.BlueBeamer;
+import magic.mammoth.model.meeples.ForrestJump;
+import magic.mammoth.model.meeples.McEdge;
+import magic.mammoth.model.meeples.MutantMeeple;
+import magic.mammoth.model.meeples.OzzyMosis;
+import magic.mammoth.model.meeples.Shortstop;
+import magic.mammoth.model.meeples.Sidestep;
+import magic.mammoth.model.meeples.Skewt;
 import magic.mammoth.model.movements.Movement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
