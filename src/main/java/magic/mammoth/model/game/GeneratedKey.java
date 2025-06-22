@@ -1,4 +1,4 @@
-package magic.mammoth.model;
+package magic.mammoth.model.game;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;

@@ -2,6 +2,7 @@ package magic.mammoth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import magic.mammoth.model.directions.Direction;
 
 @Data
 @AllArgsConstructor(staticName = "of")
@@ -23,6 +24,12 @@ public class Coordinate {
     public Coordinate modify(int rowModifier, int columnModifier) {
         row += rowModifier;
         column += columnModifier;
+        return this;
+    }
+
+    public Coordinate modify(Direction direction) {
+        row += direction.getRowChange();
+        column += direction.getColumnChange();
         return this;
     }
 

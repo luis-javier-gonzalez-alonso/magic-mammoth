@@ -1,8 +1,8 @@
 package magic.mammoth;
 
-import magic.mammoth.model.Game;
-import magic.mammoth.model.GeneratedKey;
-import magic.mammoth.model.Player;
+import magic.mammoth.model.game.Game;
+import magic.mammoth.model.game.GeneratedKey;
+import magic.mammoth.model.game.Player;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

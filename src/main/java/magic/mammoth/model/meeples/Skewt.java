@@ -1,16 +1,16 @@
 package magic.mammoth.model.meeples;
 
-import magic.mammoth.model.Board;
-import magic.mammoth.model.Cell;
-import magic.mammoth.model.CellLimit;
+import magic.mammoth.model.board.Board;
+import magic.mammoth.model.board.Cell;
 import magic.mammoth.model.Coordinate;
+import magic.mammoth.model.directions.Diagonals;
+import magic.mammoth.model.directions.Direction;
 import magic.mammoth.model.movements.Movement;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.function.Predicate.not;
 import static magic.mammoth.model.Coordinate.copyOf;
 
 public class Skewt extends MutantMeeple {
@@ -21,35 +21,44 @@ public class Skewt extends MutantMeeple {
     }
 
     @Override
-    public Movement power() {
+    protected Movement power() {
         return (board, origin) -> {
-            Cell from = board.get(origin);
             Set<Coordinate> options = new HashSet<>();
 
-            moveOneDiagonal(board, origin, from, -1, -1)
-//                    .filter(c -> board.get(c).isEmpty()) TODO check is empty
+            moveOneDiagonal(board, origin, Diagonals.UpLeft)
                     .ifPresent(options::add);
-            moveOneDiagonal(board, origin, from, -1, 1)
-//                    .filter(c -> board.get(c).isEmpty()) TODO check is empty
+            moveOneDiagonal(board, origin, Diagonals.UpRight)
                     .ifPresent(options::add);
-            moveOneDiagonal(board, origin, from, 1, -1)
-//                    .filter(c -> board.get(c).isEmpty()) TODO check is empty
+            moveOneDiagonal(board, origin, Diagonals.DownLeft)
                     .ifPresent(options::add);
-            moveOneDiagonal(board, origin, from, 1, 1)
-//                    .filter(c -> board.get(c).isEmpty()) TODO check is empty
+            moveOneDiagonal(board, origin, Diagonals.DownRight)
                     .ifPresent(options::add);
 
             return options;
         };
     }
 
-    private Optional<Coordinate> moveOneDiagonal(Board board, Coordinate origin, Cell from, int rowChange, int columnChange) {
-        return Optional.of(copyOf(origin).modify(rowChange, columnChange))
-                .filter(to -> !from.check(rowChange == -1 ? CellLimit.BoardTop : CellLimit.BoardBottom)
-                        && !from.check(columnChange == -1 ? CellLimit.BoardLeft : CellLimit.BoardRight))
-                .filter(not(to -> from.check(columnChange == -1 ? CellLimit.WallLeft : CellLimit.WallRight)
-                        || board.get(to).check(rowChange == -1 ? CellLimit.WallBottom : CellLimit.WallTop)))
-                .filter(not(to -> from.check(rowChange == 1 ? CellLimit.WallBottom : CellLimit.WallTop)
-                        || board.get(to).check(columnChange == 1 ? CellLimit.WallLeft : CellLimit.WallRight)));
+    private Optional<Coordinate> moveOneDiagonal(Board board, Coordinate origin, Diagonals direction) {
+        return moveOneOrthogonal(board, origin, direction.getA())
+                .flatMap(middle -> moveOneOrthogonal(board, middle, direction.getB()))
+                .or(() -> moveOneOrthogonal(board, origin, direction.getB())
+                        .flatMap(middle -> moveOneOrthogonal(board, middle, direction.getA())));
+
+    }
+
+    private Optional<Coordinate> moveOneOrthogonal(Board board, Coordinate origin, Direction direction) {
+        Coordinate destination = copyOf(origin).modify(direction);
+        Cell from = board.get(origin);
+        Cell next = board.get(destination);
+
+        if (isBlocked(direction, from, next)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(destination);
+    }
+
+    private boolean isBlocked(Direction direction, Cell from, Cell next) {
+        return from.checkAny(direction) || next.checkAny(direction.opposite());
     }
 }

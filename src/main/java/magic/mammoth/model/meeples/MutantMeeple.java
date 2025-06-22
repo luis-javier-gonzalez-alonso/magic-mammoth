@@ -1,7 +1,8 @@
 package magic.mammoth.model.meeples;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import magic.mammoth.model.Board;
+import magic.mammoth.model.board.Board;
 import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.movements.Movement;
 import magic.mammoth.model.movements.SuperSpeed;
@@ -14,17 +15,25 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
 
 @Slf4j
+@NoArgsConstructor
 public abstract class MutantMeeple {
 
     protected Coordinate position;
 
     public abstract String name();
 
-    public abstract Movement power();
+    protected abstract Movement power();
 
     public Set<Coordinate> possibleDestinations(Board board) {
         return concat(stream(SuperSpeed.values()), Stream.of(power()))
                 .flatMap(m -> m.apply(board, position).stream())
+                .filter(board::outOfBounds)
+                .filter(board::cellIsEmpty)
+                .filter(next -> !position.equals(next)) // current is not a valid next option movement (TODO but will always contain current meeple so it should be removed by cellIsEmpty)
                 .collect(Collectors.toSet());
+    }
+
+    public void moveTo(Coordinate newPosition) {
+        position = newPosition;
     }
 }

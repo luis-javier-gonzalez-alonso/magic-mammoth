@@ -1,4 +1,4 @@
-package magic.mammoth.model;
+package magic.mammoth.model.board;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

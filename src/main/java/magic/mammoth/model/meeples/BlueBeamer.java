@@ -3,8 +3,7 @@ package magic.mammoth.model.meeples;
 import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.movements.Movement;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 public class BlueBeamer extends MutantMeeple {
 
@@ -14,13 +13,11 @@ public class BlueBeamer extends MutantMeeple {
     }
 
     @Override
-    public Movement power() {
-        return (board, origin) -> Stream.of(
-                        Coordinate.of('D', 'D'),
-                        Coordinate.of('H', 'H'),
-                        Coordinate.of('K', 'K'),
-                        Coordinate.of('O', 'O'))
-//                .filter(c -> board.get(c).isEmpty()) TODO check is empty
-                .collect(Collectors.toSet());
+    protected Movement power() {
+        return (board, origin) -> Set.of(
+                Coordinate.of('D', 'D'),
+                Coordinate.of('H', 'H'),
+                Coordinate.of('K', 'K'),
+                Coordinate.of('O', 'O'));
     }
 }

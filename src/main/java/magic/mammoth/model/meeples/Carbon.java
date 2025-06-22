@@ -1,0 +1,19 @@
+package magic.mammoth.model.meeples;
+
+import magic.mammoth.model.movements.Movement;
+
+import java.util.Set;
+
+public class Carbon extends MutantMeeple {
+
+    @Override
+    public String name() {
+        return "Carbon (black)";
+    }
+
+    @Override
+    protected Movement power() {
+        // TODO needs some additional scaffolding to be able to get available powers from game.
+        return (board, origin) -> Set.of();
+    }
+}

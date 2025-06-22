@@ -1,6 +1,7 @@
-package magic.mammoth.model;
+package magic.mammoth.model.board;
 
 import lombok.Getter;
+import magic.mammoth.model.Coordinate;
 
 import java.util.Map;
 import java.util.Set;
@@ -30,8 +31,21 @@ public class Board {
         }
     }
 
+    public boolean outOfBounds(Coordinate coordinate) {
+        return get(coordinate) != null;
+    }
+
+    public boolean cellIsEmpty(Coordinate coordinate) {
+        return get(coordinate).isEmpty();
+    }
+
     public Cell get(Coordinate coordinate) {
-        return cells[coordinate.rowValue()][coordinate.columnValue()];
+        try {
+            return cells[coordinate.rowValue()][coordinate.columnValue()];
+
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
     public void print() {
