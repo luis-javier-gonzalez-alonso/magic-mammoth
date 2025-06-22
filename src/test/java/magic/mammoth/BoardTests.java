@@ -3,15 +3,13 @@ package magic.mammoth;
 import magic.mammoth.model.Board;
 import magic.mammoth.model.CellLimit;
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.Direction;
+import magic.mammoth.model.movements.SuperSpeed;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
 import static magic.mammoth.model.DefaultBoards.BASIC;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BoardTests {
 
@@ -56,19 +54,19 @@ public class BoardTests {
                 '2', Set.of(CellLimit.WallLeft, CellLimit.BoardBottom),
                 '3', Set.of(CellLimit.WallBottom, CellLimit.BoardRight)));
 
-        assertFalse(board.canMove(Coordinate.of('A', 'A'), Direction.Up));
-        assertFalse(board.canMove(Coordinate.of('A', 'B'), Direction.Up));
-        assertFalse(board.canMove(Coordinate.of('A', 'B'), Direction.Right));
-        assertFalse(board.canMove(Coordinate.of('B', 'B'), Direction.Right));
-        assertFalse(board.canMove(Coordinate.of('B', 'B'), Direction.Down));
-        assertFalse(board.canMove(Coordinate.of('B', 'A'), Direction.Down));
-        assertFalse(board.canMove(Coordinate.of('B', 'A'), Direction.Left));
-        assertFalse(board.canMove(Coordinate.of('A', 'A'), Direction.Left));
+        assertFalse(board.canMove(Coordinate.of('A', 'A'), SuperSpeed.Up));
+        assertFalse(board.canMove(Coordinate.of('A', 'B'), SuperSpeed.Up));
+        assertFalse(board.canMove(Coordinate.of('A', 'B'), SuperSpeed.Right));
+        assertFalse(board.canMove(Coordinate.of('B', 'B'), SuperSpeed.Right));
+        assertFalse(board.canMove(Coordinate.of('B', 'B'), SuperSpeed.Down));
+        assertFalse(board.canMove(Coordinate.of('B', 'A'), SuperSpeed.Down));
+        assertFalse(board.canMove(Coordinate.of('B', 'A'), SuperSpeed.Left));
+        assertFalse(board.canMove(Coordinate.of('A', 'A'), SuperSpeed.Left));
 
-        assertTrue(board.canMove(Coordinate.of('A', 'A'), Direction.Right));
-        assertTrue(board.canMove(Coordinate.of('A', 'B'), Direction.Down));
-        assertTrue(board.canMove(Coordinate.of('B', 'B'), Direction.Left));
-        assertTrue(board.canMove(Coordinate.of('B', 'A'), Direction.Up));
+        assertTrue(board.canMove(Coordinate.of('A', 'A'), SuperSpeed.Right));
+        assertTrue(board.canMove(Coordinate.of('A', 'B'), SuperSpeed.Down));
+        assertTrue(board.canMove(Coordinate.of('B', 'B'), SuperSpeed.Left));
+        assertTrue(board.canMove(Coordinate.of('B', 'A'), SuperSpeed.Up));
     }
 
     @Test
@@ -77,9 +75,9 @@ public class BoardTests {
                 '1', Set.of(CellLimit.WallRight),
                 '2', Set.of(CellLimit.BoardRight)));
 
-        assertTrue(board.canMove(Coordinate.of('A', 'A'), Direction.Right));
-        assertTrue(board.canMove(Coordinate.of('A', 'B'), Direction.Right));
-        assertFalse(board.canMove(Coordinate.of('A', 'C'), Direction.Right));
-        assertFalse(board.canMove(Coordinate.of('A', 'D'), Direction.Right));
+        assertTrue(board.canMove(Coordinate.of('A', 'A'), SuperSpeed.Right));
+        assertTrue(board.canMove(Coordinate.of('A', 'B'), SuperSpeed.Right));
+        assertFalse(board.canMove(Coordinate.of('A', 'C'), SuperSpeed.Right));
+        assertFalse(board.canMove(Coordinate.of('A', 'D'), SuperSpeed.Right));
     }
 }

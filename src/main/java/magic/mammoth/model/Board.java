@@ -1,13 +1,21 @@
 package magic.mammoth.model;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.Set;
 
 public class Board {
 
+    @Getter
+    private final Character lastRow;
+    @Getter
+    private final Character lastColumn;
     private final Cell[][] cells;
 
     public Board(Character lastRow, Character lastColumn, String template, Map<Character, Set<CellLimit>> legend) {
+        this.lastRow = lastRow;
+        this.lastColumn = lastColumn;
         int rows = lastRow - 'A' + 1;
         int columns = lastColumn - 'A' + 1;
         this.cells = new Cell[rows][columns];
@@ -22,13 +30,8 @@ public class Board {
         }
     }
 
-    public boolean canMove(Coordinate origin, Direction direction) {
-        Cell cellOrigin = cells[origin.rowValue()][origin.columnValue()];
-        int rowDestination = (origin.rowValue() + direction.getRowChange() + cells.length) % cells.length;
-        int columnDestination = (origin.columnValue() + direction.getColumnChange() + cells[0].length) % cells[0].length;
-        Cell cellDestination = cells[rowDestination][columnDestination];
-
-        return cellOrigin.to(direction) && cellDestination.from(direction);
+    public Cell get(Coordinate coordinate) {
+        return cells[coordinate.rowValue()][coordinate.columnValue()];
     }
 
     public void print() {
