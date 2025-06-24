@@ -22,16 +22,16 @@ public class Sidestep extends MutantMeeple {
 
     @Override
     protected Movement power() {
-        return (board, origin) -> {
+        return (game, origin) -> {
             Set<Coordinate> options = new HashSet<>();
 
-            moveOneOrthogonal(board, origin, Orthogonals.Up)
+            moveOneOrthogonal(game.getBoard(), origin, Orthogonals.Up)
                     .ifPresent(options::add);
-            moveOneOrthogonal(board, origin, Orthogonals.Right)
+            moveOneOrthogonal(game.getBoard(), origin, Orthogonals.Right)
                     .ifPresent(options::add);
-            moveOneOrthogonal(board, origin, Orthogonals.Down)
+            moveOneOrthogonal(game.getBoard(), origin, Orthogonals.Down)
                     .ifPresent(options::add);
-            moveOneOrthogonal(board, origin, Orthogonals.Left)
+            moveOneOrthogonal(game.getBoard(), origin, Orthogonals.Left)
                     .ifPresent(options::add);
 
             return options;

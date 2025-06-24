@@ -14,7 +14,7 @@ public class BlueBeamer extends MutantMeeple {
 
     @Override
     protected Movement power() {
-        return (board, origin) -> Set.of(
+        return (game, origin) -> Set.of(
                 Coordinate.of('D', 'D'),
                 Coordinate.of('H', 'H'),
                 Coordinate.of('K', 'K'),

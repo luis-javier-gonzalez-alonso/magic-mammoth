@@ -14,6 +14,6 @@ public class Carbon extends MutantMeeple {
     @Override
     protected Movement power() {
         // TODO needs some additional scaffolding to be able to get available powers from game.
-        return (board, origin) -> Set.of();
+        return (game, origin) -> Set.of();
     }
 }

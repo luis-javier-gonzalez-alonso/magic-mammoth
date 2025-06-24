@@ -2,6 +2,7 @@ package magic.mammoth.model.meeples;
 
 import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.board.Board;
+import magic.mammoth.model.game.Game;
 import magic.mammoth.model.movements.Movement;
 import magic.mammoth.model.movements.SuperSpeed;
 
@@ -18,20 +19,20 @@ public class Shortstop extends MutantMeeple {
 
     @Override
     protected Movement power() {
-        return (board, origin) -> {
+        return (game, origin) -> {
             Set<Coordinate> options = new HashSet<>();
 
-            options.addAll(stopOneBefore(board, origin, SuperSpeed.Up));
-            options.addAll(stopOneBefore(board, origin, SuperSpeed.Right));
-            options.addAll(stopOneBefore(board, origin, SuperSpeed.Down));
-            options.addAll(stopOneBefore(board, origin, SuperSpeed.Left));
+            options.addAll(stopOneBefore(game, origin, SuperSpeed.Up));
+            options.addAll(stopOneBefore(game, origin, SuperSpeed.Right));
+            options.addAll(stopOneBefore(game, origin, SuperSpeed.Down));
+            options.addAll(stopOneBefore(game, origin, SuperSpeed.Left));
 
             return options;
         };
     }
 
-    private Set<Coordinate> stopOneBefore(Board board, Coordinate origin, SuperSpeed movement) {
-        return movement.apply(board, origin).stream()
+    private Set<Coordinate> stopOneBefore(Game game, Coordinate origin, SuperSpeed movement) {
+        return movement.apply(game, origin).stream()
                 .filter(c -> !origin.equals(c)) // Only affects when there is change
                 .map(c -> c.modify(movement.getDirection().opposite())) // Go one back
                 .collect(Collectors.toSet());

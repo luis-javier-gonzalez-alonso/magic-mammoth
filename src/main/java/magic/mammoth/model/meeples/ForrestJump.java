@@ -15,7 +15,7 @@ public class ForrestJump extends MutantMeeple {
 
     @Override
     protected Movement power() {
-        return (board, origin) -> Set.of(
+        return (game, origin) -> Set.of(
                 copyOf(origin).modify(-3, 0),
                 copyOf(origin).modify(0, 3),
                 copyOf(origin).modify(3, 0),

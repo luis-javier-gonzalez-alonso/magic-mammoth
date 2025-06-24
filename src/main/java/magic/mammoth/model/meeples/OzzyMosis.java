@@ -1,8 +1,8 @@
 package magic.mammoth.model.meeples;
 
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.board.Board;
 import magic.mammoth.model.board.CellLimit;
+import magic.mammoth.model.game.Game;
 import magic.mammoth.model.movements.Movement;
 import magic.mammoth.model.movements.SuperSpeed;
 
@@ -20,24 +20,24 @@ public class OzzyMosis extends MutantMeeple {
 
     @Override
     protected Movement power() {
-        return (board, origin) -> {
+        return (game, origin) -> {
             Set<Coordinate> options = new HashSet<>();
 
-            options.addAll(skipFirstWall(board, origin, SuperSpeed.Up));
-            options.addAll(skipFirstWall(board, origin, SuperSpeed.Right));
-            options.addAll(skipFirstWall(board, origin, SuperSpeed.Down));
-            options.addAll(skipFirstWall(board, origin, SuperSpeed.Left));
+            options.addAll(skipFirstWall(game, origin, SuperSpeed.Up));
+            options.addAll(skipFirstWall(game, origin, SuperSpeed.Right));
+            options.addAll(skipFirstWall(game, origin, SuperSpeed.Down));
+            options.addAll(skipFirstWall(game, origin, SuperSpeed.Left));
 
             return options;
         };
     }
 
-    private Set<Coordinate> skipFirstWall(Board board, Coordinate origin, SuperSpeed movement) {
-        return movement.apply(board, origin).stream()
-                .filter(last -> !board.get(last).checkAny(borderInMovementDirection(movement))) // don't skip border
+    private Set<Coordinate> skipFirstWall(Game game, Coordinate origin, SuperSpeed movement) {
+        return movement.apply(game, origin).stream()
+                .filter(last -> !game.getBoard().get(last).checkAny(borderInMovementDirection(movement))) // don't skip border
                 .map(c -> c.modify(movement.getDirection())) // skip first wall
-                .filter(board::cellIsEmpty) // don't skip other meeples
-                .flatMap(next -> movement.apply(board, next).stream())
+                .filter(game.getBoard()::cellIsEmpty) // don't skip other meeples
+                .flatMap(next -> movement.apply(game, next).stream())
                 .collect(Collectors.toSet());
     }
 

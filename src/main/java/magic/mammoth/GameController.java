@@ -38,7 +38,7 @@ public class GameController {
     @PostMapping(value = "/create-game", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createGame() {
         GeneratedKey gameKey = new GeneratedKey();
-        inFlightGames.put(gameKey, new Game());
+        inFlightGames.put(gameKey, new Game(gameKey.toString()));
 
         return created(URI.create("/api/join-game/" + gameKey))
                 .header(GAME_KEY, gameKey.toString()).build();

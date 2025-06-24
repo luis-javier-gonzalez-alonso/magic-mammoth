@@ -22,16 +22,16 @@ public class Skewt extends MutantMeeple {
 
     @Override
     protected Movement power() {
-        return (board, origin) -> {
+        return (game, origin) -> {
             Set<Coordinate> options = new HashSet<>();
 
-            moveOneDiagonal(board, origin, Diagonals.UpLeft)
+            moveOneDiagonal(game.getBoard(), origin, Diagonals.UpLeft)
                     .ifPresent(options::add);
-            moveOneDiagonal(board, origin, Diagonals.UpRight)
+            moveOneDiagonal(game.getBoard(), origin, Diagonals.UpRight)
                     .ifPresent(options::add);
-            moveOneDiagonal(board, origin, Diagonals.DownLeft)
+            moveOneDiagonal(game.getBoard(), origin, Diagonals.DownLeft)
                     .ifPresent(options::add);
-            moveOneDiagonal(board, origin, Diagonals.DownRight)
+            moveOneDiagonal(game.getBoard(), origin, Diagonals.DownRight)
                     .ifPresent(options::add);
 
             return options;

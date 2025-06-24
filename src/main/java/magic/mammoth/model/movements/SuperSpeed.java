@@ -3,9 +3,9 @@ package magic.mammoth.model.movements;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.board.Board;
 import magic.mammoth.model.board.Cell;
 import magic.mammoth.model.directions.Orthogonals;
+import magic.mammoth.model.game.Game;
 
 import java.util.Set;
 
@@ -23,12 +23,12 @@ public enum SuperSpeed implements Movement {
     private Orthogonals direction;
 
     @Override
-    public Set<Coordinate> apply(Board board, Coordinate origin) {
+    public Set<Coordinate> apply(Game game, Coordinate origin) {
         Coordinate current = copyOf(origin);
         Coordinate next = copyOf(origin);
         next.modify(direction.getRowChange(), direction.getColumnChange());
 
-        while (!isBlocked(board.get(current), board.get(next))) {
+        while (!isBlocked(game.getBoard().get(current), game.getBoard().get(next))) {
             next.modify(direction.getRowChange(), direction.getColumnChange());
             current.modify(direction.getRowChange(), direction.getColumnChange());
         }
