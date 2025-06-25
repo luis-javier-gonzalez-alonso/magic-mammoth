@@ -2,11 +2,10 @@ package magic.mammoth.events;
 
 import magic.mammoth.model.Coordinate;
 
-import java.util.Map;
+public record NewSceneOfCrime(Coordinate sceneOfCrime) implements GameEvent {
 
-public class NewSceneOfCrime extends GameEvent {
-
-    public NewSceneOfCrime(Coordinate sceneOfCrime) {
-        super("scene-of-crime", Map.of("sceneOfCrime", sceneOfCrime));
+    @Override
+    public String getEventName() {
+        return "scene-of-crime";
     }
 }

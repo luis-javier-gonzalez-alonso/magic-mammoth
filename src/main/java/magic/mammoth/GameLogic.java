@@ -1,15 +1,13 @@
 package magic.mammoth;
 
-import magic.mammoth.events.NewSceneOfCrime;
-import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.game.Game;
+import magic.mammoth.model.Game;
 
 public class GameLogic {
 
     public void gameInitiation() {
-        // Create board
-        // Position meeples in initial positions
-        // initialise statistics
+        // create-game
+        // join-game
+//        game.start(); // background thread will run the full game
     }
 
     public void gameLoop(Game game) {
@@ -20,12 +18,18 @@ public class GameLogic {
     public void roundLoop(Game game) {
         {
             // 1. New random target
-            Coordinate target;
-            do {
-                target = game.newSceneOfCrime();
-            } while (!game.getBoard().cellIsEmpty(target));
-
-            game.broadcastToPlayers(new NewSceneOfCrime(target));
+//            Coordinate target;
+//            do {
+//                target = game.newSceneOfCrime();
+//            } while (!game.getBoard().cellIsEmpty(target));
+//
+//            game.broadcastToPlayers(new NewSceneOfCrime(target));
+//
+//            GameEvent gameEvent;
+//            do {
+//                gameEvent = game.waitForEvent();
+//                game.broadcastToPlayers(gameEvent);
+//            } while (!(gameEvent instanceof ResolutionAttempt));
 
             // 2. Await first resolution + 30 seconds or surrender of all players
             // -> Add option to declare that you can't find a solution, and skip if all agree

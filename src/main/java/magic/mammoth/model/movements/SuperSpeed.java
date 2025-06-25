@@ -3,9 +3,9 @@ package magic.mammoth.model.movements;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import magic.mammoth.model.Coordinate;
+import magic.mammoth.model.Game;
 import magic.mammoth.model.board.Cell;
 import magic.mammoth.model.directions.Orthogonals;
-import magic.mammoth.model.game.Game;
 
 import java.util.Set;
 

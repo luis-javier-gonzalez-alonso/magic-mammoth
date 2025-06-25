@@ -5,8 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -15,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class GameTests {
+public class GameIntegrationTests {
 
     @Autowired
     ObjectMapper objectMapper;
@@ -40,6 +44,38 @@ public class GameTests {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Game-Key"))
                 .andExpect(header().exists("Player-Key"));
+    }
+
+    @Test
+    void game() throws Exception {
+        String gameKey = mockMvc.perform(post("/api/create-game"))
+                .andReturn().getResponse().getHeader("Game-Key");
+
+        String playerKey = mockMvc.perform(post("/api/join-game/{gameKey}?player=Doraemon", gameKey))
+                .andReturn().getResponse().getHeader("Player-Key");
+
+        mockMvc.perform(get("/api/start-game")
+                        .header("Game-Key", gameKey)
+                        .header("Player-Key", playerKey))
+                .andExpect(status().isNoContent());
+
+        MvcResult result = mockMvc.perform(get("/api/game")
+                        .contentType(MediaType.TEXT_EVENT_STREAM)
+                        .header("Game-Key", gameKey)
+                        .header("Player-Key", playerKey))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String generateEvents = result.getResponse().getContentAsString();
+
+        assertEquals("""
+                event:player-joined
+                data:{"playerName":"Doraemon"}
+                                
+                event:game-started
+                data:{}
+                                
+                """, generateEvents);
     }
 
     @Test

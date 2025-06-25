@@ -3,7 +3,7 @@ package magic.mammoth.model.meeples;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.game.Game;
+import magic.mammoth.model.Game;
 import magic.mammoth.model.movements.Movement;
 import magic.mammoth.model.movements.SuperSpeed;
 

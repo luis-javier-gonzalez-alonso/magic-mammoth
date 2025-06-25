@@ -1,10 +1,9 @@
 package magic.mammoth.events;
 
-import java.util.Map;
+public record PlayerJoined(String playerName) implements GameEvent {
 
-public class PlayerJoined extends GameEvent {
-
-    public PlayerJoined(String playerName) {
-        super("player-joined", Map.of("playerName", playerName));
+    @Override
+    public String getEventName() {
+        return "player-joined";
     }
 }

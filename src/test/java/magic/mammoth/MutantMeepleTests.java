@@ -2,7 +2,7 @@ package magic.mammoth;
 
 import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.board.Board;
-import magic.mammoth.model.game.Game;
+import magic.mammoth.model.Game;
 import magic.mammoth.model.meeples.BlueBeamer;
 import magic.mammoth.model.meeples.ForrestJump;
 import magic.mammoth.model.meeples.McEdge;

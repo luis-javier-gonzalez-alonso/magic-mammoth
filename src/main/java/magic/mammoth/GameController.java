@@ -1,10 +1,12 @@
 package magic.mammoth;
 
+import lombok.RequiredArgsConstructor;
+import magic.mammoth.events.GameStarted;
 import magic.mammoth.events.PlayerJoined;
+import magic.mammoth.model.Game;
+import magic.mammoth.model.GameStatus;
+import magic.mammoth.model.Player;
 import magic.mammoth.model.board.BoardMode;
-import magic.mammoth.model.game.Game;
-import magic.mammoth.model.game.Player;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,24 +15,28 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 
+import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class GameController {
 
     private static final String GAME_KEY = "Game-Key";
     private static final String PLAYER_KEY = "Player-Key";
 
+    private final Executor gameExecutor;
     private final Map<String, Game> inFlightGames = new ConcurrentHashMap<>();
 
     // Create game (gives game key, this is then mandatory everywhere)
@@ -50,9 +56,13 @@ public class GameController {
     }
 
     @PostMapping(value = "/join-game/{gameKey}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> joinGame(@PathVariable("gameKey") String gameKey,
-                                         @RequestParam("player") String playerName) {
+    public ResponseEntity<String> joinGame(@PathVariable("gameKey") String gameKey,
+                                           @RequestParam("player") String playerName) {
         Game game = inFlightGames.get(gameKey);
+
+        if (game.getStatus() != GameStatus.Created) {
+            return badRequest().body("Game started");
+        }
 
         final Player player = new Player(playerName);
         game.getPlayers()
@@ -65,7 +75,7 @@ public class GameController {
                 .header(PLAYER_KEY, player.getApiKey()).build();
     }
 
-    @PostMapping(value = "/game-details", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/game-details", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Game> gameDetails(@RequestHeader(GAME_KEY) String gameKey,
                                             @RequestHeader(PLAYER_KEY) String playerKey) {
         Game game = inFlightGames.get(gameKey);
@@ -77,14 +87,31 @@ public class GameController {
         return ok(game);
     }
 
-    @GetMapping(value = "/game", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(value = "/start-game", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> startGame(@RequestHeader(GAME_KEY) String gameKey,
+                                            @RequestHeader(PLAYER_KEY) String playerKey) {
+        Game game = inFlightGames.get(gameKey);
+
+        if (!game.getPlayers().containsKey(playerKey)) {
+            return ResponseEntity.status(403).build();
+        }
+        if (game.getStatus() != GameStatus.Created) {
+            return badRequest().body("Game already started");
+        }
+
+        game.broadcastToPlayers(new GameStarted(game));
+
+        gameExecutor.execute(game::start);
+
+        return noContent().build();
+    }
+
+    @GetMapping(value = "/game-events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter game(@RequestHeader(GAME_KEY) String gameKey,
                            @RequestHeader(PLAYER_KEY) String playerKey) {
-
         return inFlightGames.get(gameKey)
                 .getPlayers()
                 .get(playerKey)
-                .getEmitter();
+                .createEmitter();
     }
 }

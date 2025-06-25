@@ -3,7 +3,7 @@ package magic.mammoth.model.meeples;
 import magic.mammoth.model.Coordinate;
 import magic.mammoth.model.board.CellLimit;
 import magic.mammoth.model.directions.Orthogonals;
-import magic.mammoth.model.game.Game;
+import magic.mammoth.model.Game;
 import magic.mammoth.model.movements.Movement;
 import magic.mammoth.model.movements.SuperSpeed;
 
@@ -38,7 +38,7 @@ public class McEdge extends MutantMeeple {
     private Set<Coordinate> skipBorder(Game game, Coordinate origin, SuperSpeed movement) {
         return movement.apply(game, origin).stream()
                 .filter(last -> game.getBoard().get(last).checkAny(borderInMovementDirection(movement))) // skip border
-                .map(c -> findOrthogonallyOppositeBorder(game, movement.getDirection(), c)) // TODO Go to opposite border
+                .map(c -> findOrthogonallyOppositeBorder(game, movement.getDirection(), c))
                 .filter(game.getBoard()::cellIsEmpty) // don't skip other meeples
                 .flatMap(next -> movement.apply(game, next).stream())
                 .collect(Collectors.toSet());
@@ -48,7 +48,6 @@ public class McEdge extends MutantMeeple {
         return limit -> limit.isBorder() && limit.is(movement.getDirection());
     }
 
-    // TODO keep advancing until opposite border is found (avoid dead areas like A,A or R,R)
     private Coordinate findOrthogonallyOppositeBorder(Game game, Orthogonals direction, Coordinate current) {
         Coordinate opposite = switch (direction) {
             case Up -> copyOf(current).set(game.getBoard().getLastRowAndColumn(), current.getColumn());

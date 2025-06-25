@@ -1,7 +1,7 @@
 package magic.mammoth.model.movements;
 
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.game.Game;
+import magic.mammoth.model.Game;
 
 import java.util.Set;
 
