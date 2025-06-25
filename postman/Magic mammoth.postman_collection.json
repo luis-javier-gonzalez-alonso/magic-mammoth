@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "034ac273-8219-447c-9a9d-014e5b5ed015",
+		"name": "Magic mammoth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21852072"
+	},
+	"item": [
+		{
+			"name": "Create game",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.response.to.have.status(201);",
+							"",
+							"pm.globals.set(\"gameKey\", pm.response.headers.get(\"Game-Key\"));",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/create-game",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"create-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Join game",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.response.to.have.status(201);",
+							"",
+							"pm.environment.set(\"playerKey\", pm.response.headers.get(\"Player-Key\"));",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/join-game/{{gameKey}}?player={{playerName}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"join-game",
+						"{{gameKey}}"
+					],
+					"query": [
+						{
+							"key": "player",
+							"value": "{{playerName}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Game details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Game-Key",
+						"value": "{{gameKey}}",
+						"type": "text"
+					},
+					{
+						"key": "Player-Key",
+						"value": "{{playerKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/game-details",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"game-details"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start game",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Game-Key",
+						"value": "{{gameKey}}",
+						"type": "text"
+					},
+					{
+						"key": "Player-Key",
+						"value": "{{playerKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/start-game",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"start-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Game events",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Game-Key",
+						"value": "{{gameKey}}",
+						"type": "text"
+					},
+					{
+						"key": "Player-Key",
+						"value": "{{playerKey}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "text/event-stream",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/game-events",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"game-events"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
