@@ -35,10 +35,10 @@ public class GameTests {
         String gameKey = mockMvc.perform(post("/api/create-game"))
                 .andReturn().getResponse().getHeader("Game-Key");
 
-        mockMvc.perform(post("/api/join-game?player=Doraemon")
-                        .header("Game-Key", gameKey))
+        mockMvc.perform(post("/api/join-game/{gameKey}?player=Doraemon", gameKey))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists("Game-Key"))
                 .andExpect(header().exists("Player-Key"));
     }
 
@@ -46,12 +46,9 @@ public class GameTests {
     void gameDetails() throws Exception {
         String gameKey = mockMvc.perform(post("/api/create-game"))
                 .andReturn().getResponse().getHeader("Game-Key");
-        String playerKey = mockMvc.perform(post("/api/join-game?player=Doraemon")
-                        .header("Game-Key", gameKey))
+        String playerKey = mockMvc.perform(post("/api/join-game/{gameKey}?player=Doraemon", gameKey))
                 .andReturn().getResponse().getHeader("Player-Key");
-        mockMvc.perform(post("/api/join-game?player=Nobita")
-                        .header("Game-Key", gameKey))
-                .andReturn().getResponse().getHeader("Player-Key");
+        mockMvc.perform(post("/api/join-game/{gameKey}?player=Nobita", gameKey));
 
         mockMvc.perform(post("/api/game-details")
                         .header("Game-Key", gameKey)

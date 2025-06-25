@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Set;
 
-import static magic.mammoth.model.board.DefaultBoards.BASIC;
+import static magic.mammoth.model.board.BoardMode.BASIC;
 
 public class BoardTests {
 
     @Test
     void boardLimits() {
-        Board board = new Board('C', 'C', " ABA CDC ", Map.of(
+        Board board = new Board('C', " ABA CDC ", Map.of(
                 ' ', Set.of(),
                 'B', Set.of(CellLimit.BoardTop, CellLimit.BoardRight),
                 'C', Set.of(CellLimit.BoardRight, CellLimit.BoardBottom),
@@ -26,7 +26,7 @@ public class BoardTests {
 
     @Test
     void boardWalls() {
-        Board board = new Board('C', 'C', " ABA CDC ", Map.of(
+        Board board = new Board('C', " ABA CDC ", Map.of(
                 ' ', Set.of(),
                 'B', Set.of(CellLimit.WallTop, CellLimit.WallRight),
                 'C', Set.of(CellLimit.WallRight, CellLimit.WallBottom),
@@ -39,7 +39,7 @@ public class BoardTests {
 
     @Test
     void basicBoard() {
-        Board board = new Board(BASIC.getLastRow(), BASIC.getLastColumn(), BASIC.getTemplate(), BASIC.getLegend());
+        Board board = new Board(BASIC.getLastRowAndColumn(), BASIC.getTemplate(), BASIC.getLegend());
 
         board.print();
     }

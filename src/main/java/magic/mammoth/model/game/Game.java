@@ -1,43 +1,76 @@
 package magic.mammoth.model.game;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import magic.mammoth.events.GameEvent;
 import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.Target;
 import magic.mammoth.model.board.Board;
+import magic.mammoth.model.board.BoardMode;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.IntStream;
 
-import static java.lang.Long.parseLong;
+import static java.util.Collections.shuffle;
 
 @Data
 public class Game {
 
-    private final String gameKey;
+    private final static Random gameKeyGenerator = new Random(System.nanoTime());
 
-    private Board board;
-    private Target target;
+    private final Long gameKey;
+    private final Board board;
 
-    private List<Player> players = new ArrayList<>();
+    @JsonIgnore
+    private final Map<String, Player> players = new HashMap<>();
 
-    private Statistics statistics;
+    @JsonIgnore
+    private final Random sceneOfCrimeGenerator;
+    @JsonIgnore
+    private List<Character> locationTiles;
+    private Coordinate sceneOfCrime;
 
-    // Technical
-    private List<Character> poolForTarget;
-    private final Random random;
-
-    public Game(String gameKey) {
-        this.gameKey = gameKey;
-        this.random = new Random(parseLong(gameKey, 16));
+    public Game(BoardMode mode) {
+        this.gameKey = gameKeyGenerator.nextLong(0x100000, 0xFFFFFF); // key size is six hex digits
+        this.board = new Board(mode);
+        this.sceneOfCrimeGenerator = new Random(gameKey);
+        // TODO Initial position of meeples
     }
 
-    public void newTarget() {
-        do {
-            List<Character> values = random.ints(2, 'A', board.getLastColumn())
-                    .mapToObj(i -> (char) i)
-                    .toList();
-            target = new Target(Coordinate.of(values.get(0), values.get(1)));
-        } while (target.check(board)); // resolved -> generate a new one
+    public String getGameKey() {
+        return Long.toHexString(gameKey);
+    }
+
+    @JsonProperty("players")
+    public List<Player> publicPlayers() {
+        return players.values().stream().toList();
+    }
+
+    public void broadcastToPlayers(GameEvent event) {
+        players.values()
+                .parallelStream() // TODO Is this fair enough?
+                .forEach(p -> p.send(event));
+    }
+
+    public Coordinate newSceneOfCrime() {
+        sceneOfCrime = Coordinate.of(turnOverLocationTile(), turnOverLocationTile());
+        return sceneOfCrime;
+    }
+
+    private Character turnOverLocationTile() {
+        if (locationTiles == null || locationTiles.isEmpty()) {
+            resetLocationTiles();
+        }
+        return locationTiles.removeLast();
+    }
+
+    private void resetLocationTiles() {
+        locationTiles = IntStream.range('A', board.getLastRowAndColumn() + 1)
+                .mapToObj(i -> (char) i)
+                .toList();
+        shuffle(locationTiles, sceneOfCrimeGenerator);
     }
 }

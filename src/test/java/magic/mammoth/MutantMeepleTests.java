@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static magic.mammoth.model.board.DefaultBoards.BASIC;
+import static magic.mammoth.model.board.BoardMode.BASIC;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MutantMeepleTests {
@@ -28,9 +28,7 @@ public class MutantMeepleTests {
 
     @BeforeEach
     void setUp() {
-        game = new Game("1");
-        board = new Board(BASIC.getLastRow(), BASIC.getLastColumn(), BASIC.getTemplate(), BASIC.getLegend());
-        game.setBoard(board);
+        game = new Game(BASIC);
         powerless = new MutantMeeple() {
             @Override
             public String name() {

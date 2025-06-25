@@ -19,9 +19,9 @@ import java.util.Set;
 
 @Getter
 @AllArgsConstructor
-public enum DefaultBoards {
+public enum BoardMode {
 
-    BASIC('R', 'R', """
+    BASIC('R', """
             .haaaiaaaaaaaiaaab
             h..7.....3.......c
             g.4.....4......2.c
@@ -68,7 +68,7 @@ public enum DefaultBoards {
                             '9', Set.of(CellLimit.WallBottom, CellLimit.WallRight))
             )),
 
-    ADVANCED('R', 'R', """
+    ADVANCED('R', """
             X00000000000400000
             000000204000000400
             002000000000004000
@@ -90,8 +90,7 @@ public enum DefaultBoards {
             """.replace("\n", ""),
             Map.of());
 
-    private char lastRow;
-    private char lastColumn;
+    private char lastRowAndColumn;
     private String template;
     private Map<Character, Set<CellLimit>> legend;
 

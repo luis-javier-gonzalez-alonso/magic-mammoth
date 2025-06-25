@@ -51,10 +51,10 @@ public class McEdge extends MutantMeeple {
     // TODO keep advancing until opposite border is found (avoid dead areas like A,A or R,R)
     private Coordinate findOrthogonallyOppositeBorder(Game game, Orthogonals direction, Coordinate current) {
         Coordinate opposite = switch (direction) {
-            case Up -> copyOf(current).set(game.getBoard().getLastRow(), current.getColumn());
+            case Up -> copyOf(current).set(game.getBoard().getLastRowAndColumn(), current.getColumn());
             case Right -> copyOf(current).set(current.getRow(), 'A');
             case Down -> copyOf(current).set('A', current.getColumn());
-            case Left -> copyOf(current).set(current.getRow(), game.getBoard().getLastColumn());
+            case Left -> copyOf(current).set(current.getRow(), game.getBoard().getLastRowAndColumn());
         };
         while (!game.getBoard().get(opposite).checkAny(limit -> limit.isBorder() && limit.is(direction.opposite()))) {
             opposite.modify(direction);
