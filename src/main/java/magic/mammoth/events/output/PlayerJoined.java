@@ -1,4 +1,6 @@
-package magic.mammoth.events;
+package magic.mammoth.events.output;
+
+import magic.mammoth.events.GameEvent;
 
 public record PlayerJoined(String playerName) implements GameEvent {
 

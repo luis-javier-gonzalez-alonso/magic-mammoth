@@ -2,12 +2,14 @@ package magic.mammoth.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Setter;
 import magic.mammoth.events.GameEvent;
-import magic.mammoth.events.NewSceneOfCrime;
-import magic.mammoth.events.ResolutionAttempt;
+import magic.mammoth.events.input.ResolutionAttempt;
+import magic.mammoth.events.output.GameStarted;
+import magic.mammoth.events.output.NewSceneOfCrime;
+import magic.mammoth.events.output.PlayerJoined;
+import magic.mammoth.exceptions.GameIsStarted;
+import magic.mammoth.exceptions.PlayerForbidden;
 import magic.mammoth.model.board.Board;
 import magic.mammoth.model.board.BoardMode;
 
@@ -16,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
 import static java.util.Collections.shuffle;
@@ -30,8 +36,7 @@ public class Game {
     private final Long gameKey;
     private final Board board;
 
-    @Setter(AccessLevel.NONE)
-    private GameStatus status = Created;
+    private final AtomicReference<GameStatus> status = new AtomicReference<>(Created);
 
     @JsonIgnore
     private final Map<String, Player> players = new HashMap<>();
@@ -42,6 +47,11 @@ public class Game {
     private List<Character> locationTiles;
     private Coordinate sceneOfCrime;
 
+    // Fair keeps order of lock
+    private ReentrantLock inputCommunication = new ReentrantLock(true);
+    private BlockingQueue<GameEvent> communications = new LinkedBlockingQueue<>();
+
+
     public Game(BoardMode mode) {
         this(gameKeyGenerator.nextLong(0x1000000, 0xFFFFFFF), mode);
     }
@@ -50,7 +60,7 @@ public class Game {
         this(Long.parseLong(gameKey, 16), mode);
     }
 
-    public Game(long gameKey, BoardMode mode) {
+    private Game(long gameKey, BoardMode mode) {
         this.gameKey = gameKey;
         this.board = new Board(mode);
         this.sceneOfCrimeGenerator = new Random(gameKey);
@@ -61,50 +71,94 @@ public class Game {
         return Long.toHexString(gameKey);
     }
 
+    public GameStatus getStatus() {
+        return status.get();
+    }
+
     @JsonProperty("players")
-    public List<Player> publicPlayers() {
+    public List<Player> players() {
         return players.values().stream().toList();
     }
 
-    // Game communications
-    GameEvent receivedEvent;
+    // Player methods ---------------------------------------------------------
 
-    // TODO replace with ReentrantLock
-    private synchronized GameEvent waitForEvent() {
-        while (receivedEvent == null) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                // just check while condition
-            }
+    public void addPlayer(Player player) {
+        if (status.get() != Created) {
+            throw new GameIsStarted();
         }
-        notifyAll();
-        GameEvent received = this.receivedEvent;
-        receivedEvent = null;
-        return received;
+
+        broadcastToPlayers(new PlayerJoined(player.getName()));
+        players.put(player.getApiKey(), player);
     }
 
-    // TODO replace with ReentrantLock
-    public synchronized void submitEvent(GameEvent event) {
-        while (receivedEvent != null) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                // just check while condition
-            }
-        }
-        this.receivedEvent = event;
-        notifyAll();
+    public Player getPlayer(String playerKey) {
+        checkPlayer(playerKey);
+        return players.get(playerKey);
     }
 
-    //TODO make private, use submit event instead
-    public void broadcastToPlayers(GameEvent event) {
+    public void checkPlayer(String playerKey) throws PlayerForbidden {
+        if (!players.containsKey(playerKey)) {
+            throw new PlayerForbidden();
+        }
+    }
+
+    // Event communications ---------------------------------------------------
+
+    public void submitEvent(GameEvent event) {
+        inputCommunication.lock();
+        try {
+            communications.add(event);
+        } finally {
+            inputCommunication.unlock();
+        }
+    }
+
+    private GameEvent waitForEvent() throws InterruptedException {
+        GameEvent next = communications.take(); // TODO poll instead?
+
+        broadcastToPlayers(next);
+        handleGameEvent(next); // TODO here or in game loop?
+
+        return next;
+    }
+
+    private void broadcastToPlayers(GameEvent event) {
         players.values()
                 .parallelStream() // TODO Is this fair enough?
                 .forEach(p -> p.send(event));
     }
 
-    public Coordinate newSceneOfCrime() {
+    // Game logic -------------------------------------------------------------
+
+    public void start() {
+        if (!status.compareAndSet(Created, Started)) return;
+        broadcastToPlayers(new GameStarted(this));
+
+        try {
+            gameLogicLoop();
+        } catch (InterruptedException e) {
+            // Just finish this game
+        }
+    }
+
+    private void gameLogicLoop() throws InterruptedException {
+        while (!isGameFinished()) {
+            Coordinate target;
+            do {
+                target = newSceneOfCrime();
+            } while (!board.cellIsEmpty(target));
+
+            broadcastToPlayers(new NewSceneOfCrime(target));
+
+            GameEvent gameEvent;
+            do {
+                gameEvent = waitForEvent();
+                broadcastToPlayers(gameEvent);
+            } while (!(gameEvent instanceof ResolutionAttempt));
+        }
+    }
+
+    private Coordinate newSceneOfCrime() {
         sceneOfCrime = Coordinate.of(turnOverLocationTile(), turnOverLocationTile());
         return sceneOfCrime;
     }
@@ -123,27 +177,17 @@ public class Game {
         shuffle(locationTiles, sceneOfCrimeGenerator);
     }
 
-    public void start() {
-        status = Started;
-
-        while (!isGameFinished()) {
-            Coordinate target;
-            do {
-                target = newSceneOfCrime();
-            } while (!board.cellIsEmpty(target));
-
-            broadcastToPlayers(new NewSceneOfCrime(target));
-
-            GameEvent gameEvent;
-            do {
-                gameEvent = waitForEvent();
-                broadcastToPlayers(gameEvent);
-            } while (!(gameEvent instanceof ResolutionAttempt));
-        }
+    private boolean isGameFinished() {
+        return players().stream()
+                .anyMatch(p -> p.getSuperTeam().size() >= 6);
     }
 
-    private boolean isGameFinished() {
-        return publicPlayers().stream()
-                .anyMatch(p -> p.getSuperTeam().size() >= 6);
+    private void handleGameEvent(GameEvent event) {
+
+        if (event instanceof ResolutionAttempt resolutionAttempt) {
+            return;
+        }
+
+        // If none of those, then ignore this event
     }
 }

@@ -1,5 +1,6 @@
-package magic.mammoth.events;
+package magic.mammoth.events.output;
 
+import magic.mammoth.events.GameEvent;
 import magic.mammoth.model.Game;
 
 public record GameStarted(Game game) implements GameEvent {

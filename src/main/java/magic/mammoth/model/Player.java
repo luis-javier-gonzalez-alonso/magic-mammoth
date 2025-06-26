@@ -15,10 +15,10 @@ import java.util.UUID;
 @Data
 public class Player {
 
-    private final String name;
-
     @JsonIgnore
     private final String apiKey = UUID.randomUUID().toString();
+
+    private final String name;
 
     /**
      * When a player gets to the target with a meeple,
@@ -28,10 +28,13 @@ public class Player {
      */
     private final Set<MutantMeeple> superTeam = new HashSet<>();
 
+
+    // Player communications --------------------------------------------------
+
     @JsonIgnore
     private SseEmitter emitter;
 
-    public SseEmitter createEmitter() {
+    public SseEmitter playerEventStream() {
         if (emitter != null) {
             try {
                 emitter.completeWithError(new RuntimeException("Discarding previous emitter due to reconnection"));
@@ -40,7 +43,7 @@ public class Player {
             }
         }
         emitter = new SseEmitter(Duration.ofMinutes(5).toMillis());
-//        emitter.onCompletion(() -> this.setEmitter(null));
+        emitter.onCompletion(() -> this.setEmitter(null));
         return emitter;
     }
 
