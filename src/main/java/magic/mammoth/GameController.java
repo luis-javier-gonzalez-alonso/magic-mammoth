@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
+import static magic.mammoth.model.GameStatus.Completed;
 import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.http.ResponseEntity.noContent;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -87,12 +89,18 @@ public class GameController {
     }
 
     @GetMapping(value = "/game-events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter game(@RequestHeader(GAME_KEY) String gameKey,
-                           @RequestHeader(PLAYER_KEY) String playerKey) {
+    public ResponseEntity<SseEmitter> game(@RequestHeader(GAME_KEY) String gameKey,
+                                           @RequestHeader(PLAYER_KEY) String playerKey) {
         Game game = inFlightGames.get(gameKey);
 
-        return game.getPlayer(playerKey)
-                .playerEventStream();
+        game.checkPlayer(playerKey);
+
+        if (game.getStatus() == Completed) {
+            return noContent().build();
+        }
+
+        return ok()
+                .body(game.getCommunications().getEventStream(playerKey));
     }
 
     @ExceptionHandler(PlayerForbidden.class)

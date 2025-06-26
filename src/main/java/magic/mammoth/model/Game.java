@@ -3,6 +3,7 @@ package magic.mammoth.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import magic.mammoth.Communications;
 import magic.mammoth.events.GameEvent;
 import magic.mammoth.events.input.ResolutionAttempt;
 import magic.mammoth.events.output.GameStarted;
@@ -18,10 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
 import static java.util.Collections.shuffle;
@@ -47,10 +45,8 @@ public class Game {
     private List<Character> locationTiles;
     private Coordinate sceneOfCrime;
 
-    // Fair keeps order of lock
-    private ReentrantLock inputCommunication = new ReentrantLock(true);
-    private BlockingQueue<GameEvent> communications = new LinkedBlockingQueue<>();
-
+    @JsonIgnore
+    private final Communications communications = new Communications();
 
     public Game(BoardMode mode) {
         this(gameKeyGenerator.nextLong(0x1000000, 0xFFFFFFF), mode);
@@ -87,9 +83,10 @@ public class Game {
             throw new GameIsStarted();
         }
 
-        broadcastToPlayers(new PlayerJoined(player.getName()));
         players.put(player.getApiKey(), player);
+        broadcastToPlayers(new PlayerJoined(player.getName()));
     }
+
 
     public Player getPlayer(String playerKey) {
         checkPlayer(playerKey);
@@ -100,32 +97,6 @@ public class Game {
         if (!players.containsKey(playerKey)) {
             throw new PlayerForbidden();
         }
-    }
-
-    // Event communications ---------------------------------------------------
-
-    public void submitEvent(GameEvent event) {
-        inputCommunication.lock();
-        try {
-            communications.add(event);
-        } finally {
-            inputCommunication.unlock();
-        }
-    }
-
-    private GameEvent waitForEvent() throws InterruptedException {
-        GameEvent next = communications.take(); // TODO poll instead?
-
-        broadcastToPlayers(next);
-        handleGameEvent(next); // TODO here or in game loop?
-
-        return next;
-    }
-
-    private void broadcastToPlayers(GameEvent event) {
-        players.values()
-                .parallelStream() // TODO Is this fair enough?
-                .forEach(p -> p.send(event));
     }
 
     // Game logic -------------------------------------------------------------
@@ -152,7 +123,7 @@ public class Game {
 
             GameEvent gameEvent;
             do {
-                gameEvent = waitForEvent();
+                gameEvent = communications.waitForEvent();
                 broadcastToPlayers(gameEvent);
             } while (!(gameEvent instanceof ResolutionAttempt));
         }
@@ -189,5 +160,12 @@ public class Game {
         }
 
         // If none of those, then ignore this event
+    }
+
+    // Communications ---------------------------------------------------------
+
+    private void broadcastToPlayers(GameEvent event) {
+        players.keySet()
+                .forEach(playerKey -> communications.send(playerKey, event));
     }
 }

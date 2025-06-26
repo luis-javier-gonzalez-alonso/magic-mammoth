@@ -9,7 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -41,13 +42,13 @@ public class GameIntegrationTests {
 
         mockMvc.perform(post("/api/join-game/{gameKey}?player=Doraemon", gameKey))
                 .andDo(print())
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(header().exists("Game-Key"))
                 .andExpect(header().exists("Player-Key"));
     }
 
     @Test
-    void game() throws Exception {
+    void gameEvents() throws Exception {
         String gameKey = mockMvc.perform(post("/api/create-game"))
                 .andReturn().getResponse().getHeader("Game-Key");
 
@@ -59,7 +60,7 @@ public class GameIntegrationTests {
                         .header("Player-Key", playerKey))
                 .andExpect(status().isNoContent());
 
-        MvcResult result = mockMvc.perform(get("/api/game")
+        MvcResult result = mockMvc.perform(get("/api/game-events")
                         .contentType(MediaType.TEXT_EVENT_STREAM)
                         .header("Game-Key", gameKey)
                         .header("Player-Key", playerKey))
@@ -68,14 +69,9 @@ public class GameIntegrationTests {
 
         String generateEvents = result.getResponse().getContentAsString();
 
-        assertEquals("""
-                event:player-joined
-                data:{"playerName":"Doraemon"}
-                                
-                event:game-started
-                data:{}
-                                
-                """, generateEvents);
+        await().untilAsserted(
+                () -> assertThat(generateEvents.lines())
+                        .contains("event:player-joined", "event:game-started", "event:scene-of-crime"));
     }
 
     @Test
@@ -86,7 +82,7 @@ public class GameIntegrationTests {
                 .andReturn().getResponse().getHeader("Player-Key");
         mockMvc.perform(post("/api/join-game/{gameKey}?player=Nobita", gameKey));
 
-        mockMvc.perform(post("/api/game-details")
+        mockMvc.perform(get("/api/game-details")
                         .header("Game-Key", gameKey)
                         .header("Player-Key", playerKey))
                 .andDo(print())

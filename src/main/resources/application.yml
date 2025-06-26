@@ -1,3 +1,11 @@
 spring:
   application:
     name: magic-mammoth
+  mvc:
+    async:
+      request-timeout: 0 # No timeout for SSE connections
+
+server:
+  compression:
+    enabled: true
+    mime-types: text/event-stream
