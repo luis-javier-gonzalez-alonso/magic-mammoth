@@ -1,13 +1,13 @@
 package magic.mammoth;
 
-import magic.mammoth.model.board.Board;
-import magic.mammoth.model.board.CellLimit;
+import magic.mammoth.game.model.board.Board;
+import magic.mammoth.game.model.board.CellLimit;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static magic.mammoth.model.board.BoardMode.BASIC;
+import static magic.mammoth.game.model.board.BoardMode.BASIC;
 
 public class BoardTests {
 

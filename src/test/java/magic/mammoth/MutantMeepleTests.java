@@ -1,23 +1,23 @@
 package magic.mammoth;
 
-import magic.mammoth.model.Coordinate;
-import magic.mammoth.model.board.Board;
-import magic.mammoth.model.Game;
-import magic.mammoth.model.meeples.BlueBeamer;
-import magic.mammoth.model.meeples.ForrestJump;
-import magic.mammoth.model.meeples.McEdge;
-import magic.mammoth.model.meeples.MutantMeeple;
-import magic.mammoth.model.meeples.OzzyMosis;
-import magic.mammoth.model.meeples.Shortstop;
-import magic.mammoth.model.meeples.Sidestep;
-import magic.mammoth.model.meeples.Skewt;
-import magic.mammoth.model.movements.Movement;
+import magic.mammoth.game.Game;
+import magic.mammoth.game.model.Coordinate;
+import magic.mammoth.game.model.board.Board;
+import magic.mammoth.game.model.meeples.BlueBeamer;
+import magic.mammoth.game.model.meeples.ForrestJump;
+import magic.mammoth.game.model.meeples.McEdge;
+import magic.mammoth.game.model.meeples.MutantMeeple;
+import magic.mammoth.game.model.meeples.OzzyMosis;
+import magic.mammoth.game.model.meeples.Shortstop;
+import magic.mammoth.game.model.meeples.Sidestep;
+import magic.mammoth.game.model.meeples.Skewt;
+import magic.mammoth.game.model.movements.Movement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static magic.mammoth.model.board.BoardMode.BASIC;
+import static magic.mammoth.game.model.board.BoardMode.BASIC;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MutantMeepleTests {
