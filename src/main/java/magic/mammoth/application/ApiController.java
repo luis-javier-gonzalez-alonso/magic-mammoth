@@ -1,8 +1,8 @@
 package magic.mammoth.application;
 
 import lombok.RequiredArgsConstructor;
-import magic.mammoth.application.exceptions.GameIsStarted;
-import magic.mammoth.application.exceptions.PlayerForbidden;
+import magic.mammoth.exceptions.GameIsStarted;
+import magic.mammoth.exceptions.PlayerForbidden;
 import magic.mammoth.game.Game;
 import magic.mammoth.game.Player;
 import magic.mammoth.game.model.board.BoardMode;
@@ -44,7 +44,7 @@ public class ApiController {
 
     @PostMapping(value = "/create-game", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createGame(@RequestParam(required = false, defaultValue = "BASIC") BoardMode mode) {
-        Game game = new Game(mode);
+        Game game = new Game();
 
         inFlightGames.put(game.getGameKey(), game);
 

@@ -1,6 +1,7 @@
 package magic.mammoth.game.model.board;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import magic.mammoth.game.model.directions.Direction;
 import magic.mammoth.game.model.meeples.MutantMeeple;
 
@@ -16,6 +17,7 @@ public class Cell {
 
     private final Set<CellLimit> limits;
 
+    @Setter
     private MutantMeeple content;
 
     public boolean isEmpty() {

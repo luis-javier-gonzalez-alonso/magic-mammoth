@@ -1,5 +1,6 @@
 package magic.mammoth.game.model.meeples;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import magic.mammoth.game.Game;
@@ -18,8 +19,10 @@ import static java.util.stream.Stream.concat;
 @NoArgsConstructor
 public abstract class MutantMeeple {
 
+    @JsonProperty
     protected Coordinate position;
 
+    @JsonProperty
     public abstract String name();
 
     protected abstract Movement power();
@@ -29,11 +32,14 @@ public abstract class MutantMeeple {
                 .flatMap(m -> m.apply(game, position).stream())
                 .filter(game.getBoard()::outOfBounds)
                 .filter(game.getBoard()::cellIsEmpty)
-                .filter(next -> !position.equals(next)) // current is not a valid next option movement (TODO but will always contain current meeple so it should be removed by cellIsEmpty)
                 .collect(Collectors.toSet());
     }
 
-    public void moveTo(Coordinate newPosition) {
+    public void moveTo(Game game, Coordinate newPosition) {
+        if (position != null) {
+            game.getBoard().get(position).setContent(null);
+        }
         position = newPosition;
+        game.getBoard().get(position).setContent(this);
     }
 }

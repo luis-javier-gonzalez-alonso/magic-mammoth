@@ -1,6 +1,5 @@
-package magic.mammoth;
+package magic.mammoth.game;
 
-import magic.mammoth.game.Game;
 import magic.mammoth.game.model.Coordinate;
 import magic.mammoth.game.model.board.Board;
 import magic.mammoth.game.model.meeples.BlueBeamer;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static magic.mammoth.game.model.board.BoardMode.BASIC;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MutantMeepleTests {
@@ -28,7 +26,8 @@ public class MutantMeepleTests {
 
     @BeforeEach
     void setUp() {
-        game = new Game(BASIC);
+        game = new Game();
+        game.setup();
         powerless = new MutantMeeple() {
             @Override
             public String name() {
@@ -44,14 +43,14 @@ public class MutantMeepleTests {
 
     @Test
     void superSpeed() {
-        powerless.moveTo(Coordinate.of('C', 'C'));
+        powerless.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(powerless.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         Coordinate.of('A', 'C'),
                         Coordinate.of('C', 'H'),
                         Coordinate.of('G', 'C'));
 
-        powerless.moveTo(Coordinate.of('E', 'E'));
+        powerless.moveTo(game, Coordinate.of('E', 'E'));
         assertThat(powerless.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         Coordinate.of('A', 'E'),
@@ -59,7 +58,7 @@ public class MutantMeepleTests {
                         Coordinate.of('E', 'G'),
                         Coordinate.of('H', 'E'));
 
-        powerless.moveTo(Coordinate.of('H', 'K'));
+        powerless.moveTo(game, Coordinate.of('H', 'K'));
         assertThat(powerless.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         Coordinate.of('G', 'K'),
@@ -71,7 +70,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new ForrestJump();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -80,7 +79,7 @@ public class MutantMeepleTests {
                         // power
                         Coordinate.of('D', 'B'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -91,7 +90,7 @@ public class MutantMeepleTests {
                         Coordinate.of('C', 'F'),
                         Coordinate.of('F', 'C'));
 
-        meeple.moveTo(Coordinate.of('I', 'I'));
+        meeple.moveTo(game, Coordinate.of('I', 'I'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -111,7 +110,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new OzzyMosis();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -121,7 +120,7 @@ public class MutantMeepleTests {
                         Coordinate.of('A', 'M'),
                         Coordinate.of('O', 'B'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -133,7 +132,7 @@ public class MutantMeepleTests {
                         Coordinate.of('J', 'C'),
                         Coordinate.of('C', 'R'));
 
-        meeple.moveTo(Coordinate.of('I', 'I'));
+        meeple.moveTo(game, Coordinate.of('I', 'I'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -153,7 +152,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new BlueBeamer();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -165,7 +164,7 @@ public class MutantMeepleTests {
                         Coordinate.of('K', 'K'),
                         Coordinate.of('O', 'O'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -178,7 +177,7 @@ public class MutantMeepleTests {
                         Coordinate.of('K', 'K'),
                         Coordinate.of('O', 'O'));
 
-        meeple.moveTo(Coordinate.of('D', 'D'));
+        meeple.moveTo(game, Coordinate.of('D', 'D'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -197,7 +196,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new Shortstop();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -207,7 +206,7 @@ public class MutantMeepleTests {
                         Coordinate.of('A', 'D'),
                         Coordinate.of('J', 'B'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -219,7 +218,7 @@ public class MutantMeepleTests {
                         Coordinate.of('C', 'G'),
                         Coordinate.of('F', 'C'));
 
-        meeple.moveTo(Coordinate.of('D', 'D'));
+        meeple.moveTo(game, Coordinate.of('D', 'D'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -238,7 +237,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new Sidestep();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -248,7 +247,7 @@ public class MutantMeepleTests {
                         Coordinate.of('A', 'C'),
                         Coordinate.of('B', 'B'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -260,7 +259,7 @@ public class MutantMeepleTests {
                         Coordinate.of('C', 'D'),
                         Coordinate.of('D', 'C'));
 
-        meeple.moveTo(Coordinate.of('D', 'D'));
+        meeple.moveTo(game, Coordinate.of('D', 'D'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -279,7 +278,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new Skewt();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -289,7 +288,7 @@ public class MutantMeepleTests {
                         Coordinate.of('B', 'A'),
                         Coordinate.of('B', 'C'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -301,7 +300,7 @@ public class MutantMeepleTests {
                         Coordinate.of('D', 'B'),
                         Coordinate.of('D', 'D'));
 
-        meeple.moveTo(Coordinate.of('K', 'G'));
+        meeple.moveTo(game, Coordinate.of('K', 'G'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -317,7 +316,7 @@ public class MutantMeepleTests {
         MutantMeeple meeple = new McEdge();
 
         // effect on border
-        meeple.moveTo(Coordinate.of('A', 'B'));
+        meeple.moveTo(game, Coordinate.of('A', 'B'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -327,7 +326,7 @@ public class MutantMeepleTests {
                         Coordinate.of('A', 'N'),
                         Coordinate.of('P', 'B'));
 
-        meeple.moveTo(Coordinate.of('C', 'C'));
+        meeple.moveTo(game, Coordinate.of('C', 'C'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed
@@ -337,7 +336,7 @@ public class MutantMeepleTests {
                         // power
                         Coordinate.of('K', 'C'));
 
-        meeple.moveTo(Coordinate.of('K', 'G'));
+        meeple.moveTo(game, Coordinate.of('K', 'G'));
         assertThat(meeple.possibleDestinations(game))
                 .containsExactlyInAnyOrder(
                         // super speed

@@ -1,4 +1,4 @@
-package magic.mammoth.application.exceptions;
+package magic.mammoth.exceptions;
 
 public class PlayerForbidden extends RuntimeException {
 }

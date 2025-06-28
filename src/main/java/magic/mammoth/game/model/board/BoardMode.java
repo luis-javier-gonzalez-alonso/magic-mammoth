@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,5 +101,9 @@ public enum BoardMode {
             aggregate.putAll(map);
         }
         return aggregate;
+    }
+
+    public List<Character> getInitialPositions() {
+        return List.of('C', 'E', 'G', 'I', 'J', 'L', 'N', 'P');
     }
 }

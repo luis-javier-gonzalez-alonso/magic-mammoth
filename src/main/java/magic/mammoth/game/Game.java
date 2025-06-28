@@ -3,8 +3,9 @@ package magic.mammoth.game;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import magic.mammoth.application.exceptions.GameIsStarted;
-import magic.mammoth.application.exceptions.PlayerForbidden;
+import magic.mammoth.exceptions.GameIsStarted;
+import magic.mammoth.exceptions.InvalidGameConfiguration;
+import magic.mammoth.exceptions.PlayerForbidden;
 import magic.mammoth.game.events.GameEvent;
 import magic.mammoth.game.events.input.ResolutionAttempt;
 import magic.mammoth.game.events.input.ResolutionDemonstration;
@@ -13,7 +14,7 @@ import magic.mammoth.game.events.output.NewSceneOfCrime;
 import magic.mammoth.game.events.output.PlayerJoined;
 import magic.mammoth.game.model.Coordinate;
 import magic.mammoth.game.model.board.Board;
-import magic.mammoth.game.model.board.BoardMode;
+import magic.mammoth.game.model.meeples.MutantMeeple;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
+import static java.lang.String.format;
 import static java.time.Duration.between;
 import static java.time.Duration.ofMillis;
 import static java.time.Instant.now;
@@ -39,7 +41,8 @@ public class Game {
     private final static Random gameKeyGenerator = new Random(System.nanoTime());
 
     private final Long gameKey;
-    private final Board board;
+
+    private Board board;
 
     private final AtomicReference<GameStatus> status = new AtomicReference<>(Created);
 
@@ -49,24 +52,23 @@ public class Game {
     @JsonIgnore
     private final Random sceneOfCrimeGenerator;
     //    @JsonIgnore
-    private List<Character> locationTiles;
     private Coordinate sceneOfCrime;
+    private List<Character> locationTiles;
 
     @JsonIgnore
     private final Communications communications = new Communications();
-    private final GameConfiguration configuration = GameConfiguration.builder().build();
+    private GameConfiguration configuration = GameConfiguration.builder().build();
 
-    public Game(BoardMode mode) {
-        this(gameKeyGenerator.nextLong(0x1000000, 0xFFFFFFF), mode);
+    public Game() {
+        this(gameKeyGenerator.nextLong(0x1000000, 0xFFFFFFF));
     }
 
-    public Game(String gameKey, BoardMode mode) {
-        this(Long.parseLong(gameKey, 16), mode);
+    public Game(String gameKey) {
+        this(Long.parseLong(gameKey, 16));
     }
 
-    private Game(long gameKey, BoardMode mode) {
+    private Game(long gameKey) {
         this.gameKey = gameKey;
-        this.board = new Board(mode);
         this.sceneOfCrimeGenerator = new Random(gameKey);
         // TODO Initial position of meeples
     }
@@ -82,6 +84,18 @@ public class Game {
     @JsonProperty("players")
     public List<Player> players() {
         return players.values().stream().toList();
+    }
+
+    public void setConfiguration(GameConfiguration configuration) throws InvalidGameConfiguration {
+        int expectedMeeplesCount = configuration.getBoardMode().getInitialPositions().size();
+        int participantMeeplesCount = configuration.getParticipantMeeples().size();
+
+        if (participantMeeplesCount != expectedMeeplesCount) {
+            throw new InvalidGameConfiguration(format("Expected exactly %d meeples, but %d present",
+                    expectedMeeplesCount, participantMeeplesCount));
+        }
+
+        this.configuration = configuration;
     }
 
     // Player methods ---------------------------------------------------------
@@ -109,8 +123,25 @@ public class Game {
 
     // Game logic -------------------------------------------------------------
 
+    public void setup() {
+        this.board = new Board(configuration.getBoardMode());
+
+        ArrayList<Character> initialPositions = new ArrayList<>(configuration.getBoardMode().getInitialPositions());
+        shuffle(initialPositions);
+
+        for (int i = 0; i < 8; i++) {
+            Coordinate initialPos = Coordinate.of(initialPositions.get(i), initialPositions.get(i));
+            MutantMeeple meeple = configuration.getParticipantMeeples().get(i);
+
+            meeple.moveTo(this, initialPos);
+        }
+    }
+
     public void start() {
         if (!status.compareAndSet(Created, Started)) return;
+
+        setup();
+
         broadcastToPlayers(new GameStarted(this));
 
         try {

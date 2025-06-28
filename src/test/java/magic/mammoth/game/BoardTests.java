@@ -1,4 +1,4 @@
-package magic.mammoth;
+package magic.mammoth.game;
 
 import magic.mammoth.game.model.board.Board;
 import magic.mammoth.game.model.board.CellLimit;
