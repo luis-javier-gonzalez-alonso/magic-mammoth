@@ -6,6 +6,7 @@ import lombok.Data;
 import magic.mammoth.Communications;
 import magic.mammoth.events.GameEvent;
 import magic.mammoth.events.input.ResolutionAttempt;
+import magic.mammoth.events.input.ResolutionDemonstration;
 import magic.mammoth.events.output.GameStarted;
 import magic.mammoth.events.output.NewSceneOfCrime;
 import magic.mammoth.events.output.PlayerJoined;
@@ -14,6 +15,7 @@ import magic.mammoth.exceptions.PlayerForbidden;
 import magic.mammoth.model.board.Board;
 import magic.mammoth.model.board.BoardMode;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +24,13 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
+import static java.time.Duration.between;
+import static java.time.Duration.ofMillis;
+import static java.time.Instant.now;
 import static java.util.Collections.shuffle;
+import static magic.mammoth.model.GameStatus.Completed;
 import static magic.mammoth.model.GameStatus.Created;
+import static magic.mammoth.model.GameStatus.Failed;
 import static magic.mammoth.model.GameStatus.Started;
 
 @Data
@@ -47,6 +54,7 @@ public class Game {
 
     @JsonIgnore
     private final Communications communications = new Communications();
+    private final GameConfiguration configuration = GameConfiguration.builder().build();
 
     public Game(BoardMode mode) {
         this(gameKeyGenerator.nextLong(0x1000000, 0xFFFFFFF), mode);
@@ -107,25 +115,59 @@ public class Game {
 
         try {
             gameLogicLoop();
+            status.set(Completed);
+
         } catch (InterruptedException e) {
-            // Just finish this game
+            status.set(Failed);
         }
     }
 
     private void gameLogicLoop() throws InterruptedException {
+        Coordinate target;
+        GameEvent gameEvent;
+
         while (!isGameFinished()) {
-            Coordinate target;
+
+            // new crime target
             do {
                 target = newSceneOfCrime();
             } while (!board.cellIsEmpty(target));
 
             broadcastToPlayers(new NewSceneOfCrime(target));
 
-            GameEvent gameEvent;
+            // wait for resolutions
             do {
                 gameEvent = communications.waitForEvent();
                 broadcastToPlayers(gameEvent);
+                handleGameEvent(gameEvent); // TODO each of this has a different set of allowed events
             } while (!(gameEvent instanceof ResolutionAttempt));
+
+            // wait additional time
+            Instant start = now();
+            do {
+                gameEvent = communications.waitForEvent(ofMillis(100));
+                if (gameEvent != null) {
+                    broadcastToPlayers(gameEvent);
+                    handleGameEvent(gameEvent); // TODO each of this has a different set of allowed events
+                }
+            } while (between(start, now()).minus(configuration.getAdditionalTime()).isNegative());
+
+            // for each player that provided a solution attempt in time
+            {
+                // wait for demonstration
+                do {
+                    gameEvent = communications.waitForEvent(ofMillis(100));
+                    if (gameEvent != null) {
+                        broadcastToPlayers(gameEvent);
+                        handleGameEvent(gameEvent); // TODO each of this has a different set of allowed events
+                    }
+                } while (!(gameEvent instanceof ResolutionDemonstration demo)
+                        && (between(start, now()).minus(configuration.getResolutionDemonstration()).isNegative()));
+
+                // update player superTeam if demo is successful
+                // modify meeple positions if demo is successful
+                // break for if demo is successful
+            }
         }
     }
 

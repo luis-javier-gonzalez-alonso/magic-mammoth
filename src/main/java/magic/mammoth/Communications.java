@@ -4,10 +4,12 @@ import lombok.SneakyThrows;
 import magic.mammoth.events.GameEvent;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event;
@@ -33,6 +35,10 @@ public class Communications {
 
     public GameEvent waitForEvent() throws InterruptedException {
         return communications.take();
+    }
+
+    public GameEvent waitForEvent(Duration wait) throws InterruptedException {
+        return communications.poll(wait.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     // Player communications --------------------------------------------------
