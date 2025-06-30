@@ -1,12 +1,18 @@
 package magic.mammoth.game.events.input;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import magic.mammoth.game.events.GameEvent;
 
 // TODO event content to be designed
-public record PactSkipTarget(/* define this event content*/) implements GameEvent {
+@EqualsAndHashCode(callSuper = true)
+@Value
+@AllArgsConstructor
+public class PactSkipTarget extends GameEvent {
 
     @Override
     public String getEventName() {
-        return "resolution-demonstration";
+        return "pact-skip-target";
     }
 }

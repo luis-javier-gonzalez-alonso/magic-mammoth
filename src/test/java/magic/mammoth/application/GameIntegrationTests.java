@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -65,13 +64,13 @@ public class GameIntegrationTests {
                         .header("Game-Key", gameKey)
                         .header("Player-Key", playerKey))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andReturn();
 
         String generateEvents = result.getResponse().getContentAsString();
 
-        await().untilAsserted(
-                () -> assertThat(generateEvents.lines())
-                        .contains("event:player-joined", "event:game-started", "event:scene-of-crime"));
+        assertThat(generateEvents.lines().filter(line -> line.startsWith("event:")).toList())
+                .containsExactly("event:player-joined", "event:game-started", "event:scene-of-crime");
     }
 
     @Test

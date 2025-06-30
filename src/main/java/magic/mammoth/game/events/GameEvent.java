@@ -1,9 +1,19 @@
 package magic.mammoth.game.events;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Setter;
 
-public interface GameEvent {
+public abstract class GameEvent {
 
-    @JsonIgnore
-    String getEventName();
+    @Setter
+    private Long timestamp;
+
+    public long getTimestamp() {
+        if (timestamp == null) {
+            timestamp = System.nanoTime();
+        }
+        return timestamp;
+    }
+
+    //    @JsonIgnore
+    public abstract String getEventName();
 }

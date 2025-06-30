@@ -88,9 +88,11 @@ public class ApiController {
         gameExecutor.execute(game::start);
     }
 
+    // Reconnect uses Last-Event-ID header (https://html.spec.whatwg.org/multipage/server-sent-events.html#the-last-event-id-header)
     @GetMapping(value = "/game-events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> game(@RequestHeader(GAME_KEY) String gameKey,
-                                           @RequestHeader(PLAYER_KEY) String playerKey) {
+                                           @RequestHeader(PLAYER_KEY) String playerKey,
+                                           @RequestHeader(value = "Last-Event-ID", required = false) String lastEventId) {
         Game game = inFlightGames.get(gameKey);
 
         game.checkPlayer(playerKey);
@@ -100,7 +102,7 @@ public class ApiController {
         }
 
         return ok()
-                .body(game.getCommunications().getEventStream(playerKey));
+                .body(game.getCommunications().getEventStream(playerKey, lastEventId));
     }
 
     @ExceptionHandler(PlayerForbidden.class)

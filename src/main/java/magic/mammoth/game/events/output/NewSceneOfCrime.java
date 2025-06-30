@@ -1,9 +1,17 @@
 package magic.mammoth.game.events.output;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 import magic.mammoth.game.events.GameEvent;
 import magic.mammoth.game.model.Coordinate;
 
-public record NewSceneOfCrime(Coordinate sceneOfCrime) implements GameEvent {
+@EqualsAndHashCode(callSuper = true)
+@Value
+@AllArgsConstructor
+public class NewSceneOfCrime extends GameEvent {
+
+    Coordinate sceneOfCrime;
 
     @Override
     public String getEventName() {

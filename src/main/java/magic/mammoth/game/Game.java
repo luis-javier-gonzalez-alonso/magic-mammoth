@@ -56,7 +56,7 @@ public class Game {
     private List<Character> locationTiles;
 
     @JsonIgnore
-    private final Communications communications = new Communications();
+    private final Communications communications;
     private GameConfiguration configuration = GameConfiguration.builder().build();
 
     public Game() {
@@ -69,6 +69,7 @@ public class Game {
 
     private Game(long gameKey) {
         this.gameKey = gameKey;
+        this.communications = new Communications(getGameKey());
         this.sceneOfCrimeGenerator = new Random(gameKey);
         // TODO Initial position of meeples
     }
