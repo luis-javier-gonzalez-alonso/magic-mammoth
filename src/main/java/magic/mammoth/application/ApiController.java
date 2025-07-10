@@ -5,7 +5,6 @@ import magic.mammoth.exceptions.GameIsStarted;
 import magic.mammoth.exceptions.PlayerForbidden;
 import magic.mammoth.game.Game;
 import magic.mammoth.game.Player;
-import magic.mammoth.game.model.board.BoardMode;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,7 +42,7 @@ public class ApiController {
 
 
     @PostMapping(value = "/create-game", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createGame(@RequestParam(required = false, defaultValue = "BASIC") BoardMode mode) {
+    public ResponseEntity<Void> createGame() {
         Game game = new Game();
 
         inFlightGames.put(game.getGameKey(), game);

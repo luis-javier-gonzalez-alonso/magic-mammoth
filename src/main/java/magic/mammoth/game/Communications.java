@@ -76,11 +76,12 @@ public class Communications {
 
     public void send(String playerKey, GameEvent event) {
         EventKey eventKey = new EventKey(gameKey, event.getTimestamp());
-        var finalEvent = gameEvents.putIfAbsent(eventKey, event()
-                .id(eventKey.toString())
-                .name(event.getEventName())
-                .data(event)
-                .build());
+        var finalEvent = gameEvents.computeIfAbsent(eventKey,
+                key -> event()
+                        .id(key.toString())
+                        .name(event.getEventName())
+                        .data(event)
+                        .build());
 
         send(playerKey, finalEvent);
     }
