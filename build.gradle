@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
+
+    // frontend
+    //id 'com.github.node-gradle.node' version '7.0.2'
 }
 
 java {
@@ -28,3 +31,17 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// TODO This is temporary, make it system independent using node gradle plugin
+tasks.register('buildFrontend', Exec) {
+    workingDir 'frontend'
+    commandLine 'npm', 'run', 'build'
+}
+
+tasks.register('copyFrontend', Copy) {
+    dependsOn buildFrontend
+    from 'frontend/build'
+    into 'src/main/resources/static'
+}
+
+processResources.dependsOn copyFrontend
