@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.1'
+    id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.4'
 
     // frontend
@@ -9,7 +9,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(24)
     }
 }
 
@@ -33,15 +33,15 @@ tasks.named('test') {
 }
 
 // TODO This is temporary, make it system independent using node gradle plugin
-tasks.register('buildFrontend', Exec) {
-    workingDir 'frontend'
-    commandLine 'npm', 'run', 'build'
-}
-
-tasks.register('copyFrontend', Copy) {
-    dependsOn buildFrontend
-    from 'frontend/build'
-    into 'src/main/resources/static'
-}
-
-processResources.dependsOn copyFrontend
+//tasks.register('buildFrontend', Exec) {
+//    workingDir 'frontend'
+//    commandLine 'npm', 'run', 'build'
+//}
+//
+//tasks.register('copyFrontend', Copy) {
+//    dependsOn buildFrontend
+//    from 'frontend/build'
+//    into 'src/main/resources/static'
+//}
+//
+//processResources.dependsOn copyFrontend
